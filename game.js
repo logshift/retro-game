@@ -127,7 +127,7 @@ const ParticleManager = {
                 Math.cos(angle) * speed, // Radiating x velocity
                 Math.sin(angle) * speed, // Radiating y velocity
                 45, // Life in frames - slightly longer for better visibility
-                3 + Math.random() * 5, // Size (3-8 pixels) - varied sizes
+                1.5 + Math.random() * 2.5, // Size (1.5-4 pixels) - smaller, subtler explosion
                 color,
                 'explosion'
             );
