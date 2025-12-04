@@ -2,6 +2,61 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+// Dark Mode Management
+let isDarkMode = false;
+
+// Load dark mode preference from localStorage
+function loadDarkModePreference() {
+    const savedMode = localStorage.getItem('flappyTaylorsDarkMode');
+    if (savedMode === 'true') {
+        isDarkMode = true;
+        document.body.classList.add('dark-mode');
+        updateThemeButton();
+    }
+}
+
+// Toggle dark mode
+function toggleDarkMode() {
+    isDarkMode = !isDarkMode;
+    document.body.classList.toggle('dark-mode');
+    localStorage.setItem('flappyTaylorsDarkMode', isDarkMode);
+    updateThemeButton();
+}
+
+// Update theme button text
+function updateThemeButton() {
+    const button = document.getElementById('themeToggle');
+    if (button) {
+        button.textContent = isDarkMode ? '☀️ Light Mode' : '🌙 Dark Mode';
+    }
+}
+
+// Color schemes for light and dark modes
+const colorSchemes = {
+    light: {
+        sky: '#87CEEB',
+        ground: '#8B4513',
+        grass: '#228B22',
+        pipe: '#663399',
+        pipeBorder: '#8B5FBF'
+    },
+    dark: {
+        sky: '#1a1a2e',
+        ground: '#2d2d44',
+        grass: '#1a4d2e',
+        pipe: '#4a4a6a',
+        pipeBorder: '#6a6a8a'
+    }
+};
+
+// Get current color scheme
+function getColors() {
+    return isDarkMode ? colorSchemes.dark : colorSchemes.light;
+}
+
+// Initialize dark mode on load
+loadDarkModePreference();
+
 // Game state
 let gameState = 'start'; // 'start', 'playing', 'gameOver'
 let score = 0;
@@ -498,12 +553,14 @@ function checkCollisions() {
 }
 
 function drawGround() {
+    const colors = getColors();
+    
     // Ground
-    ctx.fillStyle = '#8B4513';
+    ctx.fillStyle = colors.ground;
     ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
     
     // Grass on top
-    ctx.fillStyle = '#228B22';
+    ctx.fillStyle = colors.grass;
     ctx.fillRect(0, canvas.height - 100, canvas.width, 20);
 }
 
@@ -521,39 +578,40 @@ function drawKiro() {
 }
 
 function drawObstacles() {
+    const colors = getColors();
     ctx.font = 'bold 12px Arial';
     ctx.textAlign = 'center';
     
     for (let obstacle of obstacles) {
         // Top pipe
-        ctx.fillStyle = '#663399';
+        ctx.fillStyle = colors.pipe;
         ctx.fillRect(obstacle.x, 0, obstacleWidth, obstacle.topHeight);
         
         // Top pipe border
-        ctx.strokeStyle = '#8B5FBF';
+        ctx.strokeStyle = colors.pipeBorder;
         ctx.lineWidth = 3;
         ctx.strokeRect(obstacle.x, 0, obstacleWidth, obstacle.topHeight);
         
         // Top pipe cap
-        ctx.fillStyle = '#8B5FBF';
+        ctx.fillStyle = colors.pipeBorder;
         ctx.fillRect(obstacle.x - 5, obstacle.topHeight - 20, obstacleWidth + 10, 20);
         
         // Bottom pipe
-        ctx.fillStyle = '#663399';
+        ctx.fillStyle = colors.pipe;
         ctx.fillRect(obstacle.x, obstacle.bottomY, obstacleWidth, obstacle.bottomHeight);
         
         // Bottom pipe border
-        ctx.strokeStyle = '#8B5FBF';
+        ctx.strokeStyle = colors.pipeBorder;
         ctx.lineWidth = 3;
         ctx.strokeRect(obstacle.x, obstacle.bottomY, obstacleWidth, obstacle.bottomHeight);
         
         // Bottom pipe cap
-        ctx.fillStyle = '#8B5FBF';
+        ctx.fillStyle = colors.pipeBorder;
         ctx.fillRect(obstacle.x - 5, obstacle.bottomY, obstacleWidth + 10, 20);
         
         // Draw chore label
         ctx.fillStyle = '#FFFFFF';
-        ctx.strokeStyle = '#000000';
+        ctx.strokeStyle = isDarkMode ? '#FFFFFF' : '#000000';
         ctx.lineWidth = 3;
         
         const labelY = obstacle.topHeight + obstacleGap / 2;
@@ -650,8 +708,10 @@ function drawGameOver() {
 }
 
 function draw() {
-    // Clear canvas
-    ctx.fillStyle = '#87CEEB';
+    const colors = getColors();
+    
+    // Clear canvas with theme-appropriate sky color
+    ctx.fillStyle = colors.sky;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
     // Draw ground

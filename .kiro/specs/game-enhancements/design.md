@@ -11,8 +11,9 @@ The enhancements will follow a modular architecture:
 1. **Score Persistence Module**: Handles reading/writing scores to browser local storage
 2. **Particle System**: Manages creation, updating, and rendering of all particle effects
 3. **Effect Triggers**: Integration points in the existing game logic to trigger appropriate effects
+4. **Theme Manager**: Handles dark/light mode toggling and color scheme management
 
-The particle system will use a unified particle manager that handles different particle types through configuration objects, allowing for efficient rendering and memory management.
+The particle system will use a unified particle manager that handles different particle types through configuration objects, allowing for efficient rendering and memory management. The theme manager provides dynamic color schemes that are applied throughout the rendering pipeline.
 
 ## Components and Interfaces
 
@@ -73,6 +74,34 @@ const ParticleManager = {
 }
 ```
 
+### Theme Manager
+
+```javascript
+// Theme state
+let isDarkMode: boolean
+
+// Load theme preference from local storage
+loadDarkModePreference() -> void
+
+// Toggle between dark and light modes
+toggleDarkMode() -> void
+
+// Update theme button text and icon
+updateThemeButton() -> void
+
+// Get current color scheme
+getColors() -> ColorScheme
+
+// Color scheme interface
+interface ColorScheme {
+    sky: string
+    ground: string
+    grass: string
+    pipe: string
+    pipeBorder: string
+}
+```
+
 ## Data Models
 
 ### High Score Storage
@@ -97,6 +126,31 @@ Local storage key: `'flappyTaylorsHighScore'`
     type: string,        // Particle type identifier
     rotation: number,    // Current rotation (confetti only)
     rotationSpeed: number // Rotation speed (confetti only)
+}
+```
+
+### Theme Preference Storage
+
+Local storage key: `'flappyTaylorsDarkMode'`
+- Stored as string representation of boolean ('true' or 'false')
+- Retrieved and parsed as boolean
+- Default value: false (light mode) if not present
+
+### Color Schemes
+
+**Light Mode:**
+- Sky: #87CEEB (light blue)
+- Ground: #8B4513 (brown)
+- Grass: #228B22 (forest green)
+- Pipe: #663399 (purple)
+- Pipe Border: #8B5FBF (light purple)
+
+**Dark Mode:**
+- Sky: #1a1a2e (dark navy)
+- Ground: #2d2d44 (dark gray)
+- Grass: #1a4d2e (dark forest green)
+- Pipe: #4a4a6a (muted purple-gray)
+- Pipe Border: #6a6a8a (light gray-purple
 }
 ```
 
@@ -177,19 +231,47 @@ Property 17: Off-screen confetti removed
 *For any* confetti particle with y-position greater than the canvas height, it should be removed from the particles array.
 **Validates: Requirements 5.5**
 
+### Dark Mode Properties
+
+Property 18: Theme toggle switches mode
+*For any* theme state (light or dark), clicking the toggle button should switch to the opposite theme state.
+**Validates: Requirements 6.1**
+
+Property 19: Dark mode applies dark colors
+*For any* game element (sky, ground, grass, pipes), when dark mode is active, the element should use the dark color scheme values.
+**Validates: Requirements 6.2**
+
+Property 20: Light mode applies light colors
+*For any* game element (sky, ground, grass, pipes), when light mode is active, the element should use the light color scheme values.
+**Validates: Requirements 6.3**
+
+Property 21: Theme preference persistence
+*For any* theme selection, the preference should be saved to localStorage and retrievable after page reload.
+**Validates: Requirements 6.4, 6.5**
+
+Property 22: Theme transitions are smooth
+*For any* theme change, all color transitions should animate smoothly over a defined duration.
+**Validates: Requirements 6.6**
+
 ## Error Handling
 
 ### Local Storage Errors
 
-- **Storage Unavailable**: If local storage is not available (private browsing, storage disabled), the game should continue functioning without persistence, defaulting high score to 0
-- **Storage Quota Exceeded**: Unlikely for simple score storage, but should fail gracefully
-- **Parse Errors**: If stored high score is corrupted, default to 0 and overwrite with valid data
+- **Storage Unavailable**: If local storage is not available (private browsing, storage disabled), the game should continue functioning without persistence, defaulting high score to 0 and theme to light mode
+- **Storage Quota Exceeded**: Unlikely for simple score and theme storage, but should fail gracefully
+- **Parse Errors**: If stored high score or theme preference is corrupted, default to 0 and light mode respectively, and overwrite with valid data
 
 ### Particle System Errors
 
 - **Performance Degradation**: Limit maximum number of active particles (e.g., 500) to prevent performance issues
 - **Invalid Particle Data**: Validate particle properties before rendering to prevent canvas errors
 - **Memory Leaks**: Ensure all particles are properly removed when their life expires
+
+### Theme System Errors
+
+- **Missing Color Definitions**: Ensure all color schemes have complete definitions for all game elements
+- **CSS Transition Failures**: Gracefully handle browsers that don't support CSS transitions
+- **Button Element Missing**: Verify theme toggle button exists before attempting to update its text
 
 ## Testing Strategy
 
@@ -213,6 +295,14 @@ We will use standard JavaScript testing practices with manual verification:
    - Test particle update logic (position, life, rotation)
    - Test particle removal when life expires
    - Test particle removal when off-screen
+
+4. **Theme System Tests**:
+   - Test theme toggle functionality
+   - Test theme preference saving to localStorage
+   - Test theme preference loading from localStorage
+   - Test color scheme application in dark mode
+   - Test color scheme application in light mode
+   - Test default theme when no preference exists
 
 ### Property-Based Testing
 

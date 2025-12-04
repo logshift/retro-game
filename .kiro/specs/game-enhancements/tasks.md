@@ -48,3 +48,19 @@
   - Test edge cases: first game (no high score), rapid score increases, extended play
   - Ensure all tests pass, ask the user if questions arise
   - _Requirements: All requirements 1.1-5.5_
+
+- [x] 6. Implement dark mode theme system
+  - Add theme toggle button to HTML with appropriate styling
+  - Create theme state management (isDarkMode boolean)
+  - Implement loadDarkModePreference() to load saved theme from localStorage
+  - Implement toggleDarkMode() to switch between themes and save preference
+  - Implement updateThemeButton() to update button text/icon based on current theme
+  - Define color schemes for light and dark modes (sky, ground, grass, pipe, pipeBorder)
+  - Create getColors() function to return current color scheme
+  - Update drawGround() to use dynamic colors from getColors()
+  - Update drawObstacles() to use dynamic colors from getColors()
+  - Update draw() function to use dynamic sky color
+  - Add CSS transitions for smooth theme changes (0.3s)
+  - Add dark-mode class styling for body and canvas
+  - Test theme toggle functionality and persistence
+  - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6_

@@ -18,6 +18,9 @@ This document specifies enhancements to the Flappy Taylors game to improve playe
 - **Sparkle Effect**: Visual effect displayed when Kiro successfully passes through obstacles
 - **Confetti Effect**: Visual effect displayed when a new high score is achieved
 - **Kiro**: The player-controlled character in the game
+- **Dark Mode**: An alternative color scheme with darker colors for reduced eye strain
+- **Light Mode**: The default color scheme with bright, vibrant colors
+- **Theme Toggle**: A user interface control that switches between dark mode and light mode
 
 ## Requirements
 
@@ -80,3 +83,16 @@ This document specifies enhancements to the Flappy Taylors game to improve playe
 3. WHILE confetti particles exist THEN the Game System SHALL apply gravity and rotation to each particle
 4. WHILE confetti particles exist THEN the Game System SHALL render them with multiple colors
 5. WHEN confetti particles fall below the visible screen area THEN the Game System SHALL remove them from the rendering queue
+
+### Requirement 6
+
+**User Story:** As a player, I want to toggle between light and dark modes, so that I can play comfortably in different lighting conditions and reduce eye strain.
+
+#### Acceptance Criteria
+
+1. WHEN the player clicks the theme toggle button THEN the Game System SHALL switch between light mode and dark mode
+2. WHEN dark mode is activated THEN the Game System SHALL apply dark color schemes to the sky, ground, grass, and obstacles
+3. WHEN light mode is activated THEN the Game System SHALL apply light color schemes to the sky, ground, grass, and obstacles
+4. WHEN the player changes the theme THEN the Game System SHALL save the theme preference to local storage
+5. WHEN the Game System starts THEN the Game System SHALL load and apply the saved theme preference
+6. WHEN the theme changes THEN the Game System SHALL animate the color transitions smoothly
