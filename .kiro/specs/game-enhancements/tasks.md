@@ -64,3 +64,52 @@
   - Add dark-mode class styling for body and canvas
   - Test theme toggle functionality and persistence
   - _Requirements: 6.1, 6.2, 6.3, 6.4, 6.5, 6.6_
+
+- [x] 7. Extend ScoreManager with leaderboard functionality
+  - Add leaderboard array property to ScoreManager
+  - Implement loadLeaderboard() method to load leaderboard from localStorage using 'flappyTaylorsLeaderboard' key
+  - Implement saveLeaderboard() method to save leaderboard array as JSON to localStorage
+  - Implement isTopTenScore(score) method to check if score qualifies for top 10
+  - Implement addToLeaderboard(score, name) method to insert entry, sort by score descending, and keep top 10 only
+  - Add name validation: trim whitespace, default to "Anonymous" if empty, limit to 20 characters
+  - Update game initialization to call loadLeaderboard() on start
+  - Handle edge cases: corrupted JSON data, invalid entries, empty leaderboard
+  - _Requirements: 6.1, 6.3, 6.4, 6.5, 6.6_
+
+- [x] 8. Create name entry UI for top 10 scores
+  - Add new game state 'enterName' to handle name entry flow
+  - Create drawNameEntry() function to render name entry modal overlay
+  - Add HTML input element for player name (hidden by default, shown when needed)
+  - Style name input modal with semi-transparent background, centered input box, and submit button
+  - Update handleInput() to handle name submission when in 'enterName' state
+  - Modify game over logic: check if score is top 10, if yes set state to 'enterName', else go to 'gameOver'
+  - Add keyboard event listener for Enter key to submit name
+  - Add click event listener for submit button
+  - Clear input field after submission
+  - Transition to 'gameOver' state after name is submitted and added to leaderboard
+  - _Requirements: 6.2, 6.6_
+
+- [x] 9. Display leaderboard on game over screen
+  - Create drawLeaderboard() function to render leaderboard table/list
+  - Position leaderboard on right side or bottom of game over screen
+  - Display rank number (1-10), player name, and score for each entry
+  - Style leaderboard with clear headers, aligned columns, and readable font
+  - Highlight current player's entry if they just made the leaderboard
+  - Handle empty leaderboard gracefully (show "No scores yet" message)
+  - Integrate drawLeaderboard() call into drawGameOver() function
+  - Ensure leaderboard is visible and doesn't overlap with other game over elements
+  - Test with various leaderboard states: empty, partial (< 10 entries), full (10 entries)
+  - _Requirements: 6.5, 6.7_
+
+- [ ] 10. Test and polish leaderboard feature
+  - Test complete flow: achieve top 10 score → enter name → see leaderboard
+  - Verify leaderboard persists across page reloads
+  - Test edge cases: empty name (should default to "Anonymous"), very long names (should truncate)
+  - Test with multiple players achieving top 10 scores in sequence
+  - Verify leaderboard maintains exactly 10 entries maximum
+  - Verify scores are sorted correctly (highest to lowest)
+  - Test name input validation and sanitization
+  - Verify leaderboard displays correctly in both light and dark modes
+  - Test with corrupted localStorage data (should handle gracefully)
+  - Ensure all tests pass, ask the user if questions arise
+  - _Requirements: All leaderboard requirements 6.1-6.7_

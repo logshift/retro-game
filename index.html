@@ -65,13 +65,264 @@
         body.dark-mode .theme-toggle:hover {
             background: rgba(26, 26, 46, 1);
         }
+        
+        /* Name Entry Modal Styles */
+        .name-entry-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .name-entry-modal.active {
+            display: flex;
+        }
+        
+        .name-entry-box {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            transition: background 0.3s ease;
+        }
+        
+        body.dark-mode .name-entry-box {
+            background: #2d2d44;
+            color: white;
+        }
+        
+        .name-entry-box h2 {
+            margin: 0 0 10px 0;
+            color: #FFD700;
+            font-size: 32px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .name-entry-box p {
+            margin: 0 0 30px 0;
+            color: #663399;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        body.dark-mode .name-entry-box p {
+            color: #BB8FCE;
+        }
+        
+        .name-entry-box input {
+            width: 100%;
+            padding: 15px;
+            font-size: 18px;
+            border: 3px solid #663399;
+            border-radius: 10px;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+            transition: border-color 0.3s ease;
+        }
+        
+        body.dark-mode .name-entry-box input {
+            background: #1a1a2e;
+            color: white;
+            border-color: #BB8FCE;
+        }
+        
+        .name-entry-box input:focus {
+            outline: none;
+            border-color: #FFD700;
+        }
+        
+        .name-entry-box button {
+            width: 100%;
+            padding: 15px;
+            font-size: 20px;
+            font-weight: bold;
+            background: #663399;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .name-entry-box button:hover {
+            background: #8B5FBF;
+            transform: scale(1.05);
+        }
+        
+        body.dark-mode .name-entry-box button {
+            background: #4a4a6a;
+        }
+        
+        body.dark-mode .name-entry-box button:hover {
+            background: #6a6a8a;
+        }
+        
+        /* Game Container - holds canvas and leaderboard side by side */
+        .game-container {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            justify-content: center;
+        }
+        
+        /* Leaderboard Styles */
+        .leaderboard-container {
+            background: rgba(255, 255, 255, 0.95);
+            border: 4px solid #8B4513;
+            border-radius: 10px;
+            padding: 20px;
+            width: 250px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        body.dark-mode .leaderboard-container {
+            background: rgba(45, 45, 68, 0.95);
+            border-color: #4a4a6a;
+        }
+        
+        .leaderboard-container h2 {
+            margin: 0 0 20px 0;
+            text-align: center;
+            color: #FFD700;
+            font-size: 28px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .leaderboard-empty {
+            text-align: center;
+            color: #999;
+            font-style: italic;
+            padding: 20px 0;
+        }
+        
+        body.dark-mode .leaderboard-empty {
+            color: #666;
+        }
+        
+        .leaderboard-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(102, 51, 153, 0.1);
+            border-radius: 5px;
+            transition: all 0.2s ease;
+        }
+        
+        body.dark-mode .leaderboard-entry {
+            background: rgba(74, 74, 106, 0.3);
+        }
+        
+        .leaderboard-entry:hover {
+            background: rgba(102, 51, 153, 0.2);
+            transform: translateX(5px);
+        }
+        
+        body.dark-mode .leaderboard-entry:hover {
+            background: rgba(74, 74, 106, 0.5);
+        }
+        
+        .leaderboard-entry.current-player {
+            background: rgba(255, 215, 0, 0.3);
+            border: 2px solid #FFD700;
+            font-weight: bold;
+        }
+        
+        body.dark-mode .leaderboard-entry.current-player {
+            background: rgba(255, 215, 0, 0.2);
+        }
+        
+        .leaderboard-rank {
+            color: #663399;
+            font-weight: bold;
+            font-size: 18px;
+            min-width: 30px;
+        }
+        
+        body.dark-mode .leaderboard-rank {
+            color: #BB8FCE;
+        }
+        
+        .leaderboard-entry.current-player .leaderboard-rank {
+            color: #FFD700;
+        }
+        
+        .leaderboard-name {
+            flex: 1;
+            margin: 0 10px;
+            color: #333;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        body.dark-mode .leaderboard-name {
+            color: #FFFFFF;
+        }
+        
+        .leaderboard-entry.current-player .leaderboard-name {
+            color: #FFD700;
+        }
+        
+        body.dark-mode .leaderboard-entry.current-player .leaderboard-name {
+            color: #FFD700;
+        }
+        
+        .leaderboard-score {
+            color: #663399;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        body.dark-mode .leaderboard-score {
+            color: #BB8FCE;
+        }
+        
+        .leaderboard-entry.current-player .leaderboard-score {
+            color: #FFD700;
+        }
     </style>
 </head>
 <body>
     <button class="theme-toggle" id="themeToggle" onclick="toggleDarkMode()">
         🌙 Dark Mode
     </button>
-    <canvas id="gameCanvas" width="400" height="600"></canvas>
+    
+    <div class="game-container">
+        <canvas id="gameCanvas" width="400" height="600"></canvas>
+        
+        <!-- Leaderboard -->
+        <div class="leaderboard-container">
+            <h2>🏆 TOP 10 🏆</h2>
+            <div id="leaderboardContent">
+                <div class="leaderboard-empty">No scores yet!</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Name Entry Modal -->
+    <div class="name-entry-modal" id="nameEntryModal">
+        <div class="name-entry-box">
+            <h2>🎉 Top 10 Score! 🎉</h2>
+            <p>Enter your name for the leaderboard:</p>
+            <input type="text" id="playerNameInput" maxlength="20" placeholder="Your Name">
+            <button id="submitNameButton">Submit</button>
+        </div>
+    </div>
+    
     <script src="game.js"></script>
 </body>
 </html>

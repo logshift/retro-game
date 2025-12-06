@@ -58,14 +58,16 @@ function getColors() {
 loadDarkModePreference();
 
 // Game state
-let gameState = 'start'; // 'start', 'playing', 'gameOver'
+let gameState = 'start'; // 'start', 'playing', 'enterName', 'gameOver'
 let score = 0;
 let frameCount = 0;
 
-// Score Manager - handles persistent high score storage
+// Score Manager - handles persistent high score storage and leaderboard
 const ScoreManager = {
     highScore: 0,
     storageKey: 'flappyTaylorsHighScore',
+    leaderboard: [],
+    leaderboardKey: 'flappyTaylorsLeaderboard',
     
     // Load high score from local storage
     loadHighScore() {
@@ -113,11 +115,117 @@ const ScoreManager = {
             return true; // New high score achieved
         }
         return false;
+    },
+    
+    // Load leaderboard from local storage
+    loadLeaderboard() {
+        try {
+            const stored = localStorage.getItem(this.leaderboardKey);
+            if (stored === null || stored === undefined) {
+                // Empty storage - initialize to empty array
+                this.leaderboard = [];
+                return [];
+            }
+            
+            const parsed = JSON.parse(stored);
+            
+            // Validate that parsed data is an array
+            if (!Array.isArray(parsed)) {
+                console.warn('Corrupted leaderboard data: not an array');
+                this.leaderboard = [];
+                this.saveLeaderboard();
+                return [];
+            }
+            
+            // Validate and filter entries
+            const validEntries = parsed.filter(entry => {
+                // Check if entry has required properties and valid types
+                return entry && 
+                       typeof entry === 'object' &&
+                       typeof entry.name === 'string' &&
+                       typeof entry.score === 'number' &&
+                       !isNaN(entry.score) &&
+                       entry.score >= 0;
+            });
+            
+            this.leaderboard = validEntries;
+            return validEntries;
+        } catch (e) {
+            // Storage unavailable or JSON parse error - default to empty array
+            console.warn('Failed to load leaderboard:', e);
+            this.leaderboard = [];
+            return [];
+        }
+    },
+    
+    // Save leaderboard to local storage
+    saveLeaderboard() {
+        try {
+            const jsonString = JSON.stringify(this.leaderboard);
+            localStorage.setItem(this.leaderboardKey, jsonString);
+        } catch (e) {
+            // Storage unavailable or quota exceeded - fail gracefully
+            console.warn('Failed to save leaderboard:', e);
+        }
+    },
+    
+    // Check if score qualifies for top 10
+    isTopTenScore(score) {
+        // If leaderboard has less than 10 entries, score qualifies
+        if (this.leaderboard.length < 10) {
+            return true;
+        }
+        
+        // Check if score is higher than the lowest score in top 10
+        const lowestScore = this.leaderboard[this.leaderboard.length - 1].score;
+        return score > lowestScore;
+    },
+    
+    // Add score to leaderboard with player name
+    addToLeaderboard(score, name) {
+        // Validate and sanitize name
+        let sanitizedName = name;
+        
+        // Trim whitespace
+        if (typeof sanitizedName === 'string') {
+            sanitizedName = sanitizedName.trim();
+        }
+        
+        // Default to "Anonymous" if empty
+        if (!sanitizedName || sanitizedName === '') {
+            sanitizedName = 'Anonymous';
+        }
+        
+        // Limit to 20 characters
+        if (sanitizedName.length > 20) {
+            sanitizedName = sanitizedName.substring(0, 20);
+        }
+        
+        // Create new entry
+        const newEntry = {
+            name: sanitizedName,
+            score: score
+        };
+        
+        // Add to leaderboard
+        this.leaderboard.push(newEntry);
+        
+        // Sort by score descending (highest to lowest)
+        this.leaderboard.sort((a, b) => b.score - a.score);
+        
+        // Keep only top 10
+        if (this.leaderboard.length > 10) {
+            this.leaderboard = this.leaderboard.slice(0, 10);
+        }
+        
+        // Save to local storage
+        this.saveLeaderboard();
     }
 };
 
-// Initialize high score on game load
+// Initialize high score and leaderboard on game load
 ScoreManager.loadHighScore();
+ScoreManager.loadLeaderboard();
 
 // Particle System
 class Particle {
@@ -423,6 +531,8 @@ function handleInput() {
         kiro.velocity = kiro.jumpPower;
     } else if (gameState === 'playing') {
         kiro.velocity = kiro.jumpPower;
+    } else if (gameState === 'enterName') {
+        // Do nothing - name entry is handled by modal
     } else if (gameState === 'gameOver') {
         restartGame();
     }
@@ -527,9 +637,7 @@ function checkCollisions() {
     if (kiro.y + kiro.height > canvas.height - 100 || kiro.y < 0) {
         // Create explosion effect at collision location
         ParticleManager.createExplosion(kiro.x, kiro.y);
-        gameState = 'gameOver';
-        // Save score when game ends
-        ScoreManager.saveHighScore(ScoreManager.highScore);
+        handleGameOver();
         return;
     }
     
@@ -543,12 +651,23 @@ function checkCollisions() {
                 kiro.y + kiro.height > obstacle.bottomY) {
                 // Create explosion effect at collision location
                 ParticleManager.createExplosion(kiro.x, kiro.y);
-                gameState = 'gameOver';
-                // Save score when game ends
-                ScoreManager.saveHighScore(ScoreManager.highScore);
+                handleGameOver();
                 return;
             }
         }
+    }
+}
+
+function handleGameOver() {
+    // Save high score
+    ScoreManager.saveHighScore(ScoreManager.highScore);
+    
+    // Check if score qualifies for top 10
+    if (ScoreManager.isTopTenScore(score)) {
+        gameState = 'enterName';
+        showNameEntryModal();
+    } else {
+        gameState = 'gameOver';
     }
 }
 
@@ -701,10 +820,54 @@ function drawGameOver() {
         ctx.fillText('NEW HIGH SCORE!', canvas.width / 2, 340);
     }
     
+    // Update HTML leaderboard display
+    updateLeaderboardDisplay();
+    
     ctx.font = 'bold 20px Arial';
     ctx.fillStyle = '#FFFFFF';
     ctx.strokeText('Press SPACE or click to restart', canvas.width / 2, 420);
     ctx.fillText('Press SPACE or click to restart', canvas.width / 2, 420);
+}
+
+function updateLeaderboardDisplay() {
+    // Update the HTML leaderboard display
+    const leaderboardContent = document.getElementById('leaderboardContent');
+    
+    if (!leaderboardContent) return;
+    
+    // Handle empty leaderboard
+    if (ScoreManager.leaderboard.length === 0) {
+        leaderboardContent.innerHTML = '<div class="leaderboard-empty">No scores yet!</div>';
+        return;
+    }
+    
+    // Find if current player just made the leaderboard
+    let currentPlayerIndex = -1;
+    for (let i = 0; i < ScoreManager.leaderboard.length; i++) {
+        if (ScoreManager.leaderboard[i].score === score) {
+            // Check if this is likely the current player's entry (most recent with this score)
+            currentPlayerIndex = i;
+            break;
+        }
+    }
+    
+    // Build leaderboard HTML
+    let html = '';
+    for (let i = 0; i < ScoreManager.leaderboard.length; i++) {
+        const entry = ScoreManager.leaderboard[i];
+        const isCurrentPlayer = (i === currentPlayerIndex);
+        const entryClass = isCurrentPlayer ? 'leaderboard-entry current-player' : 'leaderboard-entry';
+        
+        html += `
+            <div class="${entryClass}">
+                <span class="leaderboard-rank">${i + 1}.</span>
+                <span class="leaderboard-name">${entry.name}</span>
+                <span class="leaderboard-score">${entry.score}</span>
+            </div>
+        `;
+    }
+    
+    leaderboardContent.innerHTML = html;
 }
 
 function draw() {
@@ -739,11 +902,78 @@ function draw() {
     }
 }
 
+function drawNameEntry() {
+    // This function is not needed as we're using HTML modal
+    // But we keep the game rendering in the background
+}
+
+function showNameEntryModal() {
+    const modal = document.getElementById('nameEntryModal');
+    const input = document.getElementById('playerNameInput');
+    
+    if (modal && input) {
+        modal.classList.add('active');
+        input.value = '';
+        input.focus();
+    }
+}
+
+function hideNameEntryModal() {
+    const modal = document.getElementById('nameEntryModal');
+    if (modal) {
+        modal.classList.remove('active');
+    }
+}
+
+function submitPlayerName() {
+    const input = document.getElementById('playerNameInput');
+    if (!input) return;
+    
+    const playerName = input.value.trim();
+    
+    // Add score to leaderboard (will handle empty name with "Anonymous")
+    ScoreManager.addToLeaderboard(score, playerName);
+    
+    // Update leaderboard display
+    updateLeaderboardDisplay();
+    
+    // Clear input field
+    input.value = '';
+    
+    // Hide modal
+    hideNameEntryModal();
+    
+    // Transition to game over state
+    gameState = 'gameOver';
+}
+
+// Event listener for submit button
+document.addEventListener('DOMContentLoaded', () => {
+    const submitButton = document.getElementById('submitNameButton');
+    if (submitButton) {
+        submitButton.addEventListener('click', submitPlayerName);
+    }
+    
+    // Event listener for Enter key in name input
+    const nameInput = document.getElementById('playerNameInput');
+    if (nameInput) {
+        nameInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitPlayerName();
+            }
+        });
+    }
+});
+
 function gameLoop() {
     updateGame();
     draw();
     requestAnimationFrame(gameLoop);
 }
+
+// Initialize leaderboard display
+updateLeaderboardDisplay();
 
 // Start the game loop
 gameLoop();
