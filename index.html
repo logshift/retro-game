@@ -294,12 +294,148 @@
         .leaderboard-entry.current-player .leaderboard-score {
             color: #FFD700;
         }
+        
+        /* Character Selection Styles */
+        .character-selector {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            z-index: 1500;
+            display: none;
+        }
+        
+        body.dark-mode .character-selector {
+            background: rgba(45, 45, 68, 0.95);
+        }
+        
+        .character-selector.active {
+            display: block;
+        }
+        
+        .character-selector h2 {
+            margin: 0 0 20px 0;
+            color: #663399;
+            font-size: 28px;
+        }
+        
+        body.dark-mode .character-selector h2 {
+            color: #BB8FCE;
+        }
+        
+        .character-options {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        
+        .character-option {
+            cursor: pointer;
+            padding: 15px;
+            border: 3px solid transparent;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            background: rgba(102, 51, 153, 0.1);
+        }
+        
+        body.dark-mode .character-option {
+            background: rgba(74, 74, 106, 0.3);
+        }
+        
+        .character-option:hover {
+            border-color: #663399;
+            transform: scale(1.05);
+            background: rgba(102, 51, 153, 0.2);
+        }
+        
+        body.dark-mode .character-option:hover {
+            border-color: #BB8FCE;
+            background: rgba(74, 74, 106, 0.5);
+        }
+        
+        .character-option.selected {
+            border-color: #FFD700;
+            background: rgba(255, 215, 0, 0.2);
+        }
+        
+        .character-option img {
+            width: 80px;
+            height: 80px;
+            display: block;
+            margin-bottom: 10px;
+        }
+        
+        .character-option p {
+            margin: 0;
+            font-weight: bold;
+            color: #663399;
+        }
+        
+        body.dark-mode .character-option p {
+            color: #BB8FCE;
+        }
+        
+        .character-option.selected p {
+            color: #FFD700;
+        }
+        
+        .character-selector button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            background: #663399;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .character-selector button:hover {
+            background: #8B5FBF;
+            transform: scale(1.05);
+        }
+        
+        body.dark-mode .character-selector button {
+            background: #4a4a6a;
+        }
+        
+        body.dark-mode .character-selector button:hover {
+            background: #6a6a8a;
+        }
     </style>
 </head>
 <body>
     <button class="theme-toggle" id="themeToggle" onclick="toggleDarkMode()">
         🌙 Dark Mode
     </button>
+    
+    <!-- Character Selection Modal -->
+    <div class="character-selector" id="characterSelector">
+        <h2>Choose Your Character</h2>
+        <div class="character-options">
+            <div class="character-option selected" data-character="kiro">
+                <img src="kiro-logo.png" alt="Kiro">
+                <p>Kiro</p>
+            </div>
+            <div class="character-option" data-character="dog">
+                <img src="dog.png" alt="Dog">
+                <p>Dog</p>
+            </div>
+            <div class="character-option" data-character="capybara">
+                <img src="capybara.png" alt="Capybara">
+                <p>Capybara</p>
+            </div>
+        </div>
+        <button id="confirmCharacterButton">Start Game</button>
+    </div>
     
     <div class="game-container">
         <canvas id="gameCanvas" width="400" height="600"></canvas>

@@ -57,6 +57,76 @@ function getColors() {
 // Initialize dark mode on load
 loadDarkModePreference();
 
+// Character Selection Management
+let selectedCharacter = 'kiro';
+const characterImages = {
+    kiro: 'kiro-logo.png',
+    dog: 'dog.png',
+    capybara: 'capybara.png'
+};
+
+// Load character preference from localStorage
+function loadCharacterPreference() {
+    const saved = localStorage.getItem('flappyTaylorsCharacter');
+    if (saved && characterImages[saved]) {
+        selectedCharacter = saved;
+    }
+}
+
+// Save character preference to localStorage
+function saveCharacterPreference(character) {
+    localStorage.setItem('flappyTaylorsCharacter', character);
+    selectedCharacter = character;
+}
+
+// Show character selector
+function showCharacterSelector() {
+    const selector = document.getElementById('characterSelector');
+    if (selector) {
+        selector.classList.add('active');
+        // Update selected state based on saved preference
+        document.querySelectorAll('.character-option').forEach(option => {
+            if (option.dataset.character === selectedCharacter) {
+                option.classList.add('selected');
+            } else {
+                option.classList.remove('selected');
+            }
+        });
+    }
+}
+
+// Hide character selector
+function hideCharacterSelector() {
+    const selector = document.getElementById('characterSelector');
+    if (selector) {
+        selector.classList.remove('active');
+    }
+}
+
+// Handle character selection
+function selectCharacter(character) {
+    selectedCharacter = character;
+    // Update UI
+    document.querySelectorAll('.character-option').forEach(option => {
+        if (option.dataset.character === character) {
+            option.classList.add('selected');
+        } else {
+            option.classList.remove('selected');
+        }
+    });
+}
+
+// Confirm character and start game
+function confirmCharacter() {
+    saveCharacterPreference(selectedCharacter);
+    hideCharacterSelector();
+    // Update kiro image
+    kiro.image.src = characterImages[selectedCharacter];
+}
+
+// Initialize character preference on load
+loadCharacterPreference();
+
 // Game state
 let gameState = 'start'; // 'start', 'playing', 'enterName', 'gameOver'
 let score = 0;
@@ -478,7 +548,8 @@ const kiro = {
     image: new Image()
 };
 
-kiro.image.src = 'kiro-logo.png';
+// Set initial character image based on saved preference
+kiro.image.src = characterImages[selectedCharacter];
 
 // Chore labels for pipes
 const chores = [
@@ -512,6 +583,9 @@ document.addEventListener('keydown', (e) => {
             spacePressed = true;
             handleInput();
         }
+    } else if (e.code === 'KeyC' && gameState === 'start') {
+        e.preventDefault();
+        showCharacterSelector();
     }
 });
 
@@ -785,6 +859,14 @@ function drawStartScreen() {
     ctx.fillStyle = '#FFD700';
     ctx.strokeText('Press SPACE or click to start!', canvas.width / 2, 400);
     ctx.fillText('Press SPACE or click to start!', canvas.width / 2, 400);
+    
+    // Show character change option
+    ctx.font = '16px Arial';
+    ctx.fillStyle = '#FFFFFF';
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 2;
+    ctx.strokeText('Press C to change character', canvas.width / 2, 450);
+    ctx.fillText('Press C to change character', canvas.width / 2, 450);
 }
 
 function drawGameOver() {
@@ -964,6 +1046,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    
+    // Event listeners for character selection
+    const confirmCharacterBtn = document.getElementById('confirmCharacterButton');
+    if (confirmCharacterBtn) {
+        confirmCharacterBtn.addEventListener('click', confirmCharacter);
+    }
+    
+    // Add click handlers to character options
+    document.querySelectorAll('.character-option').forEach(option => {
+        option.addEventListener('click', () => {
+            selectCharacter(option.dataset.character);
+        });
+    });
 });
 
 function gameLoop() {
